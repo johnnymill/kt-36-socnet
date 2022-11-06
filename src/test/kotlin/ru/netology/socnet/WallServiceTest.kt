@@ -25,7 +25,7 @@ class WallServiceTest {
         val post = Post(100, 0, 0, "Test trying to update an empty wall")
         val result = WallService.update(post)
 
-        assertEquals( false, result)
+        assertFalse(result)
     }
 
     @Test
@@ -34,7 +34,7 @@ class WallServiceTest {
         val post = Post(100, 0, 0, "Test trying to update a missing post")
         val result = WallService.update(post)
 
-        assertEquals( false, result)
+        assertFalse(result)
     }
 
     @Test
@@ -43,6 +43,6 @@ class WallServiceTest {
         val updatedPost = Post(1, 1, 1, "Test trying to update an existing post")
         val result = WallService.update(updatedPost)
 
-        assertEquals( true, result)
+        assertTrue(result)
     }
 }

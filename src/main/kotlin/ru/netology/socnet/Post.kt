@@ -7,7 +7,7 @@ data class Post (
     val id: Int,
     val ownerId: Int,
     val fromId: Int,
-    val text: String,
+    val text: String?,
     val date: Long = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
     val friendsOnly: Boolean = false,
     val isPinned: Boolean = false,

@@ -4,6 +4,7 @@ import ru.netology.socnet.WallService
 fun main() {
     WallService.add(Post(1, 1, 1, "I'm 1 and it's my first post"))
     WallService.add(Post(2, 2, 2, "I'm 2 and it's my first post"))
+    WallService.add(Post(3, 3, 3, null))
 
     println("Original posts")
     WallService.printPosts()

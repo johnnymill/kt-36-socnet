@@ -14,6 +14,16 @@ object WallService {
         return posts.last()
     }
 
+    fun addAttachment(id: Int, attachment: Attachment): Boolean {
+        for ((index, post) in posts.withIndex()) {
+            if (post.id == id) {
+                posts[index] = post.copy(attachments = post.attachments.plusElement(attachment))
+                return true
+            }
+        }
+        return false
+    }
+
     fun update(post: Post): Boolean {
         for ((index, currPost) in posts.withIndex()) {
             if (currPost.id == post.id) {

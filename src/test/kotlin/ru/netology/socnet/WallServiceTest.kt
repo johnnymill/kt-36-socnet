@@ -45,4 +45,30 @@ class WallServiceTest {
 
         assertTrue(result)
     }
+
+    @Test
+    fun addAttachmentEmpty() {
+        val video = VideoAttachment(Video(1, 1, "Video sample", "URL sample"))
+        val result = WallService.addAttachment(100, video)
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun addAttachmentMissing() {
+        WallService.add(Post(0, 0, 0, "The first post"))
+        val video = VideoAttachment(Video(1, 1, "Video sample", "URL sample"))
+        val result = WallService.addAttachment(100, video)
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun addAttachmentExisting() {
+        WallService.add(Post(0, 0, 0, "The first post"))
+        val video = VideoAttachment(Video(1, 1, "Video sample", "URL sample"))
+        val result = WallService.addAttachment(1, video)
+
+        assertTrue(result)
+    }
 }

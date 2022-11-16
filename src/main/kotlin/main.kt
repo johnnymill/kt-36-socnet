@@ -22,4 +22,19 @@ fun main() {
 
     println("Updated posts with attachments")
     WallService.printPosts()
+
+    println("\nComments adding has started")
+    val comment1 = Comment(0, 0, 1, "The first comment")
+    val comment2 = Comment(0, 0, 2, "The second comment")
+    try {
+        var comment = WallService.createComment(2, comment1)
+        println("Added comment $comment")
+
+        comment = WallService.createComment(200, comment2)
+        println("Added comment $comment")
+    } catch (e: PostNotFoundException) {
+        println("Failed to add comment $comment2")
+    } finally {
+        println("Comments adding has finished")
+    }
 }

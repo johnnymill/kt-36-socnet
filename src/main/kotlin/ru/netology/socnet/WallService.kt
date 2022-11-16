@@ -1,8 +1,12 @@
 package ru.netology.socnet
 
+class PostNotFoundException(message: String) : RuntimeException(message)
+
 object WallService {
     private var postId = 0
     private var posts = emptyArray<Post>()
+    private var commentId = 0
+    private var comments = emptyArray<Comment>()
 
     fun clear() {
         posts = emptyArray()
@@ -46,5 +50,15 @@ object WallService {
         for (post in posts) {
             println(post)
         }
+    }
+
+    fun createComment(postId: Int, comment: Comment): Comment {
+        for (post in posts) {
+            if (post.id == postId) {
+                comments += comment.copy(id = ++commentId, toId = postId)
+                return comments.last()
+            }
+        }
+        throw PostNotFoundException("Failed to add a comment to post $postId: post not found")
     }
 }

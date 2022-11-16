@@ -71,4 +71,37 @@ class WallServiceTest {
 
         assertTrue(result)
     }
+
+    @Test(expected = PostNotFoundException::class)
+    fun createComment_emptyWall() {
+        val comment = Comment(0, 0, 1, "Comment sample")
+        WallService.createComment(100, comment)
+    }
+
+    @Test(expected = PostNotFoundException::class)
+    fun createComment_invalidPost() {
+        val post = WallService.add(Post(0, 0, 0, "Post sample"))
+        val comment = Comment(0, 0, 1, "Comment sample")
+
+        WallService.createComment(post.id + 100, comment)
+    }
+
+    @Test
+    fun createComment_validPost() {
+        val post = WallService.add(Post(0, 0, 0, "Post sample"))
+        val commentRef = Comment(0, 0, 1, "Comment sample")
+
+        val comment = try {
+            WallService.createComment(post.id, commentRef)
+        } catch (e: PostNotFoundException) {
+            null
+        }
+
+        assert(comment != null
+                && comment.id == 1
+                && comment.toId == post.id
+                && comment.fromId == commentRef.fromId
+                && comment.text == commentRef.text
+                && comment.date == commentRef.date)
+    }
 }

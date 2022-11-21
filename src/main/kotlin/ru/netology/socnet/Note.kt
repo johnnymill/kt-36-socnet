@@ -3,10 +3,11 @@ package ru.netology.socnet
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
-data class Comment(
+data class Note(
     val id: Int,
-    val toId: Int,
-    val fromId: Int,
-    val text: String,
+    val ownerId: Int,
+    var title: String,
+    var text: String,
+    var comments: Int = 0,
     val date: Long = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
 )

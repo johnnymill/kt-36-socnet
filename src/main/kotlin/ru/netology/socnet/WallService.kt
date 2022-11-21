@@ -1,7 +1,5 @@
 package ru.netology.socnet
 
-class PostNotFoundException(message: String) : RuntimeException(message)
-
 object WallService {
     private var postId = 0
     private var posts = emptyArray<Post>()

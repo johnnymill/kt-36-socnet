@@ -13,7 +13,7 @@ object ChatService {
             null
     }
 
-    private fun <V> MutableMap<Pair<Int, Int>, V>.getRelated(ownerId: Int) =
+        private fun <V> MutableMap<Pair<Int, Int>, V>.getRelated(ownerId: Int) =
         filterKeys { it.first == ownerId || it.second == ownerId }
 
     fun clear() {
@@ -54,15 +54,17 @@ object ChatService {
     fun deleteMessage(fromId: Int, toId: Int, messageId: Int): Boolean {
         val chatKey = chats.getRelatedKey(fromId, toId) ?:
             throw ChatNotFoundException("Neither [$fromId to $toId] nor [$toId to $fromId] chat is found")
+        val messages = chats[chatKey] ?:
+            throw ChatNotFoundException("Unexpectedly empty chat")
 
         val message = try {
-            chats[chatKey]!!.first { m: Message -> m.id == messageId }
+            messages.first { m: Message -> m.id == messageId }
         } catch (e: NoSuchElementException) {
             null
         }
-        val result = chats[chatKey]!!.remove(message)
+        val result = messages.remove(message)
 
-        if (chats[chatKey]!!.isEmpty())
+        if (messages.isEmpty())
             chats.remove(chatKey)
 
         return result
@@ -138,11 +140,13 @@ object ChatService {
     fun getMessages(ownerId: Int, interlocutorId: Int, messageIdOffset: Int, messageCount: Int): List<Message> {
         val chatKey = chats.getRelatedKey(ownerId, interlocutorId) ?:
             throw ChatNotFoundException("Neither [$ownerId to $interlocutorId] nor [$interlocutorId to $ownerId] chat is found")
-        val fromIndex = chats[chatKey]!!.indexOfFirst { it.id == messageIdOffset }
+        val messages = chats[chatKey] ?:
+            throw ChatNotFoundException("Unexpectedly empty chat")
+        val fromIndex = messages.indexOfFirst { it.id == messageIdOffset }
         if (fromIndex < 0)
             throw MessageNotFoundException("Message with ID $messageIdOffset is not found")
-        val toIndex = kotlin.math.min(chats[chatKey]!!.size, fromIndex + messageCount)
-        return chats[chatKey]!!.subList(fromIndex, toIndex).filter {
+        val toIndex = kotlin.math.min(messages.size, fromIndex + messageCount)
+        return messages.subList(fromIndex, toIndex).filter {
             val res = !it.isRead && it.senderId == interlocutorId
             if (res) it.isRead = true
             res

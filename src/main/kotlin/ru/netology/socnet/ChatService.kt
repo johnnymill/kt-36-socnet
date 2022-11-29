@@ -13,7 +13,7 @@ object ChatService {
             null
     }
 
-        private fun <V> MutableMap<Pair<Int, Int>, V>.getRelated(ownerId: Int) =
+    private fun <V> MutableMap<Pair<Int, Int>, V>.getRelated(ownerId: Int) =
         filterKeys { it.first == ownerId || it.second == ownerId }
 
     fun clear() {
@@ -107,19 +107,13 @@ object ChatService {
      * @return Список идентификаторов собеседников пользователя с их
      * последними сообщениями
      */
-    fun getChats(ownerId: Int): Map<Int, String> {
-        val lastMessages = mutableMapOf<Int, String>()
-        for (chat in chats.getRelated(ownerId).entries) {
-            val key = if (chat.key.first != ownerId) chat.key.first else chat.key.second
-            val message = try {
-                chat.value.last { !it.isRead && it.senderId != ownerId }.text
-            } catch (e: NoSuchElementException) {
-                "Нет сообщений"
-            }
-            lastMessages[key] = message
-        }
-        return lastMessages
-    }
+    fun getChats(ownerId: Int): Map<Int, String> =
+        chats.getRelated(ownerId).asIterable()
+            .associateBy( keySelector = { if (it.key.first != ownerId) it.key.first else it.key.second },
+                          valueTransform = {
+                              it.value.lastOrNull {
+                                      msg: Message -> !msg.isRead && (msg.senderId != ownerId)
+                              }?.text ?: "Нет сообщений"})
 
     /**
      * Возвращает список непрочитанных сообщений чата и помечает их прочитанными
@@ -128,28 +122,23 @@ object ChatService {
      * @param interlocutorId        Идентификатор собеседника
      * @param messageIdOffset       Идентификатор сообщения, начиная с которого необходимо
      *                              формировать итоговый список
-     * @param messageCount          Количество сообщений для анализа (включая сообщения,
-     *                              отправленные пользователем, если таковые имеются после
-     *                              @p messageIdOffset)
+     * @param messageCount          Максимальное количество непрочитанных сообщений
      *
      * @exception ChatNotFoundException
-     * @exception MessageNotFoundException
      *
      * @return Список непрочитанных сообщений
      */
     fun getMessages(ownerId: Int, interlocutorId: Int, messageIdOffset: Int, messageCount: Int): List<Message> {
         val chatKey = chats.getRelatedKey(ownerId, interlocutorId) ?:
             throw ChatNotFoundException("Neither [$ownerId to $interlocutorId] nor [$interlocutorId to $ownerId] chat is found")
-        val messages = chats[chatKey] ?:
-            throw ChatNotFoundException("Unexpectedly empty chat")
-        val fromIndex = messages.indexOfFirst { it.id == messageIdOffset }
-        if (fromIndex < 0)
-            throw MessageNotFoundException("Message with ID $messageIdOffset is not found")
-        val toIndex = kotlin.math.min(messages.size, fromIndex + messageCount)
-        return messages.subList(fromIndex, toIndex).filter {
-            val res = !it.isRead && it.senderId == interlocutorId
-            if (res) it.isRead = true
-            res
-        }
+        return chats[chatKey]!!.asSequence()
+            .dropWhile { it.id < messageIdOffset }
+            .filter {
+                val res = !it.isRead && it.senderId == interlocutorId
+                if (res) it.isRead = true
+                res
+            }
+            .take(messageCount)
+            .toList()
     }
 }

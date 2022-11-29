@@ -132,7 +132,7 @@ class ChatServiceTest {
         ChatService.getMessages(SENDER_UNKNOWN, RECEIVER_UNKNOWN, 0, 0)
     }
 
-    @Test(expected = MessageNotFoundException::class)
+    @Test
     fun getMessages_unknownMessage() {
         ChatService.createMessage(SENDER_1, RECEIVER_1, "Sample message from $SENDER_1 to $RECEIVER_1")
         assertTrue(ChatService.getMessages(RECEIVER_1, SENDER_1, MESSAGE_UNKNOWN, 1).isEmpty())
@@ -146,6 +146,7 @@ class ChatServiceTest {
             ChatService.createMessage(RECEIVER_1, SENDER_1, "Sample message from $RECEIVER_1 to $SENDER_1 one")
         val messageId3 =
             ChatService.createMessage(SENDER_1, RECEIVER_1, "Sample message from $SENDER_1 to $RECEIVER_1 two")
+        ChatService.createMessage(SENDER_1, RECEIVER_1, "Sample message from $SENDER_1 to $RECEIVER_1 three")
         val messageId4 =
             ChatService.createMessage(SENDER_2, RECEIVER_2, "Sample message from $SENDER_2 to $RECEIVER_2 one")
         val messageId5 =
@@ -153,7 +154,7 @@ class ChatServiceTest {
 
         assertEquals(1, ChatService.getMessages(RECEIVER_1, SENDER_1, messageId1, 1).size)
         assertEquals(1, ChatService.getMessages(SENDER_1, RECEIVER_1, messageId2, 1).size)
-        assertEquals(1, ChatService.getMessages(RECEIVER_1, SENDER_1, messageId1, 3).size)
+        assertEquals(2, ChatService.getMessages(RECEIVER_1, SENDER_1, messageId1, 2).size)
         assertTrue(ChatService.getMessages(SENDER_1, RECEIVER_1, messageId2, 1).isEmpty())
         assertTrue(ChatService.getMessages(RECEIVER_1, SENDER_1, messageId3, 2).isEmpty())
 
